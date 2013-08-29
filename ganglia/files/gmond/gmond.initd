@@ -1,0 +1,61 @@
+#!/bin/sh 
+# $Id: gmond.init 180 2003-03-07 20:38:36Z sacerdoti $
+#
+# chkconfig: - 70 40
+# description: gmond startup script
+#
+GMOND=/usr/sbin/gmond
+
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+
+case "$1" in
+    start)
+	echo -n "Starting GANGLIA gmond: "
+	[ -f $GMOND ] || exit 1
+	RETVAL=0
+        for CFG in /etc/ganglia/gmond.conf; do
+    	    PID=/var/run/$(basename $CFG).pid
+    	    daemon --pidfile $PID $GMOND -c $CFG -p $PID
+    	    RETVAL=$[RETVAL||$?]
+    	done
+        [ "$RETVAL" -eq 0 ] && success $"$base startup" || failure $"$base startup"
+        echo
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/gmond
+	;;
+
+  stop)
+      echo -n "Shutting down GANGLIA gmond: "	
+      RETVAL=0
+      for CFG in /etc/ganglia/gmond.conf; do
+          PID=/var/run/$(basename $CFG).pid
+          killproc -p $PID gmond
+          R=$?
+          RETVAL=$[RETVAL||R]
+      done
+      [ "$RETVAL" -eq 0 ] && success $"$base startup" || failure $"$base startup"
+      echo
+      [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/gmond
+	;;
+
+  restart|reload)
+      $0 stop
+      $0 start
+      RETVAL=$?
+      ;;
+  status)
+      RETVAL=0
+      for CFG in /etc/ganglia/gmond.conf; do
+        PID=/var/run/$(basename $CFG).pid
+        status -p $PID gmond
+        RETVAL=$[RETVAL||$?]
+      done
+      ;;
+  *)
+      echo "Usage: $0 {start|stop|restart|status}"
+      exit 1
+      ;;
+esac
+
+exit $RETVAL

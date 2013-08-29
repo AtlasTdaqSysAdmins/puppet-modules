@@ -1,0 +1,65 @@
+/* This configuration is as close to 2.5.x default behavior as possible
+   The values closely match ./gmond/metric.h definitions in 2.5.x */
+globals {
+  daemonize = yes
+  setuid = yes
+  user = ganglia
+  debug_level = 0
+  max_udp_msg_len = 1472
+  mute = no
+  deaf = no
+  allow_extra_data = yes
+  host_dmax = 0 /*secs */
+  host_tmax = 20 /*secs */
+  cleanup_threshold = 300 /*secs */
+  gexec = no
+  send_metadata_interval = 0 /*secs */
+}
+                       
+/*
+ * The cluster attributes specified will be used as part of the <CLUSTER>
+ * tag that will wrap all hosts collected by this instance.
+ */
+cluster { 
+  name = "Test"
+  owner = "ATD SysAdmin" 
+  latlong = "unspecified" 
+  url = "unspecified"
+}
+
+/* The host section describes attributes of the host, like the location */
+host {
+  location = "B602"
+}
+
+/* You can specify as many udp_recv_channels as you like as well. */
+udp_recv_channel {
+#  mcast_join = 239.2.11.71
+  port = 8649
+#  bind = 239.2.11.71
+}
+
+/* You can specify as many tcp_accept_channels as you like to share
+   an xml description of the state of the cluster */
+tcp_accept_channel {
+  #bind = pcatd138.cern.ch
+  bind = 0.0.0.0
+  port = 8649
+}
+
+/* The old internal 2.5.x metric array has been replaced by the following
+   collection_group directives.  What follows is the default behavior for
+   collecting and sending metrics that is as close to 2.5.x behavior as
+   possible. */
+
+/* This collection group will cause a heartbeat (or beacon) to be sent every
+   20 seconds.  In the heartbeat is the GMOND_STARTED data which expresses
+   the age of the running gmond. */
+collection_group {
+  collect_once = yes
+  time_threshold = 20
+  metric {
+    name = "heartbeat"
+  }
+}
+

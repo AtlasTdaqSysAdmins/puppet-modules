@@ -1,0 +1,6 @@
+# Settings for rrdcached
+#OPTIONS="-b /var/rrdtool/rrdcached -B"
+OPTIONS="-b /var/lib/ganglia/rrds -B"
+OPTIONS="$OPTIONS -s rrdcached -m 777 -l unix:/var/rrdtool/rrdcached/rrdcached.sock"
+OPTIONS="$OPTIONS -P FLUSH,STATS,HELP -s apache -m 664 -l unix:/var/rrdtool/rrdcached/rrdcached.apache.sock"
+RRDC_USER=rrdcached
